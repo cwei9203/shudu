@@ -1,0 +1,13 @@
+# Shared contracts
+
+All modules CommonJS; no dependencies. Index cells row-major 0..80, values 0..9; candidates are 81 arrays of digits, filled cells have [].
+
+- `core/sudoku.js`: `peers(index)`, `units` (27 arrays), `candidatesFor(board)`, `solve(board, limit=2)` returns array of solutions.
+- `core/techniques.js`: `findPatterns(position, technique)` returns `{cells:number[], eliminations:[{cell,digit}], digit?:number, unit?:number[], pivot?:number}`; `judgeSubmission(position, technique, cells, eliminations)` returns `{ok,code,message,pattern?}`. technique IDs: naked-pair, locked-candidates, x-wing, xy-wing, xyz-wing. Do not mutate position.
+- `core/progress.js`: `updateProgress(record, event, independentIds)` and `courseStatus(record, independentIds)`. record `{revealed:[],passed:[],assisted:[]}`; event `{type:'reveal'|'submit',id,ok?}`; status `'new'|'learning'|'passed'|'needs-independent'`.
+- `data/lessons.js`: exports `courses` array `{id,title,subtitle,summary,rule,prerequisites,lessons:[{id,mode:'example'|'guided'|'independent',title,board,candidates,solution,proof:[],pattern,steps:[{text,cells,eliminations}]}]}`. Each course 5 lessons; each lesson unique source board. Root owns naked-pair, course metadata, UI and common interfaces.
+- Additional lesson modules: `data/locked-xwing.js`, `data/wings.js` export courses in same format, loaded by lessons.js once merged. Technique additions exported via `core/techniques/locked-xwing.js`, `core/techniques/wings.js`: `findPatterns(position, technique)`; do not edit root dispatcher.
+- `data/puzzles.js`: exports array of six `{id,title,board,solution}`. Root will source these from first six validated content boards if necessary.
+- Board component properties: `board`, `candidates`, `selected` (indexes), `targets` (eliminations), `active` (-1 or index), `conflicts` (indexes), `marks` (highlight indexes); event `celltap` detail `{index}`.
+- `core/storage.js`: `load(key,validate)` returns `{value,error}`; `save(key,value)` returns `{ok,error}`. Keys are prefixed internally; corrupt raw entries never overwritten. wx storage only here.
+- Free play agent owns core/game.js, pages/play/* and tests/game.test.js, takes puzzles via data/puzzles.js. Expose `createGame(puzzle,now)`, `applyAction(state,action,now)`, `restoreGame(raw,puzzles,now)`; document exact result in own files. Pause/resume accepts injected milliseconds.

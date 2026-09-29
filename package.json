@@ -1,0 +1,1 @@
+{"name":"shudu-training","version":"1.0.0","private":true,"description":"Native WeChat Sudoku technique trainer","scripts":{"test":"node --test tests/*.test.js","validate":"node scripts/validate-content.js"},"engines":{"node":">=22"}}
