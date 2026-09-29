@@ -1,5 +1,5 @@
 const {units,validBoard} = require('./sudoku');
-const extraFinders = [];
+const extraFinders = [require('./techniques/locked-xwing').findPatterns,require('./techniques/wings').findPatterns];
 function findPatterns(position,technique) {
   if(technique!=='naked-pair') return extraFinders.flatMap(find=>find(position,technique));
   const found=[];
