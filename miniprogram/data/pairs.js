@@ -1,4 +1,4 @@
-{
+module.exports = {
   "id": "naked-pair",
   "title": "显性数对",
   "subtitle": "两个格子，锁定两个数字",
@@ -3072,4 +3072,4 @@
       ]
     }
   ]
-}
+};

@@ -1,2 +1,2 @@
-const courses=[require('./pairs.json')];
+const courses=[require('./pairs')];
 module.exports={courses};
