@@ -1,0 +1,7 @@
+<view class="board">
+ <view wx:for="{{cells}}" wx:key="index" class="cell {{item.classes}}" data-index="{{item.index}}" bindtap="tap" aria-role="button" aria-label="{{item.label}} {{item.value}} {{item.selected ? '已选结构' : ''}} {{item.conflict ? '冲突' : ''}}">
+  <text wx:if="{{item.value}}" class="value">{{item.value}}</text>
+  <view wx:else class="notes"><text wx:for="{{item.notes}}" wx:for-item="note" wx:key="digit" class="note {{note.target?'target':''}}">{{note.visible?note.digit:''}}</text></view>
+  <text wx:if="{{item.selected}}" class="corner">◆</text><text wx:if="{{item.conflict}}" class="error-mark">!</text>
+ </view>
+</view>
