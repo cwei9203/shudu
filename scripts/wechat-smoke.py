@@ -28,14 +28,14 @@ def call(tool, **options):
 def evaluate(source, args=None):
     options = {'fn_source': source}
     if args is not None:
-        options['args'] = args
+        options['fn_source'] = 'function(){return (' + source + ').apply(null,' + json.dumps(args, ensure_ascii=False) + ');}'
     return call('automation_evaluate', **options)
 
 def tap(selector):
     return call('automation_element_action', selector=selector, action='tap', wait=1)
 
 def cell(index):
-    return call('automation_element_action', selector='sudoku-board', action='trigger', type='celltap', detail={'index':index})
+    return call('automation_element_action', selector='#sudoku-board', action='trigger', type='celltap', detail={'index':index}, wait=1, wait_for_selector='#sudoku-board')
 
 def page():
     return evaluate('function(){var p=getCurrentPages();return p[p.length-1].data;}')
@@ -66,17 +66,18 @@ try:
     if not state.get('game'):
         tap('[data-id="puzzle-1"]')
     elif state['game']['paused'] and not state['game']['solved']:
-        tap('.pause-panel .primary')
+        tap('#resume-game')
     state=page()
     if not state['game']['solved']:
         index=state['game']['board'].index(0)
         cell(index)
-        tap('.tools button:first-child')
+        tap('#toggle-notes')
+        before_notes = page()['game']['notes'][index][:]
         tap('[data-digit="1"]')
-        assert 1 in page()['game']['notes'][index]
-        tap('.tools button:nth-child(3)')
-        assert 1 not in page()['game']['notes'][index]
-        tap('.tools button:nth-child(4)')
+        assert (1 in page()['game']['notes'][index]) != (1 in before_notes)
+        tap('#undo-move')
+        assert page()['game']['notes'][index] == before_notes
+        tap('#pause-game')
         assert page()['game']['paused']
         note('自由玩: native note, undo and pause passed')
     for name in ['home','course','training','play']:
@@ -84,6 +85,7 @@ try:
     call('compile_wxml', file_path='components/board/board.wxml')
     note('All native WXML templates compiled')
 finally:
+    call('automation_navigate', action='reLaunch', url='/pages/home/home')
     evaluate("function(saved){['progress','game'].forEach(function(k){var key='shudu:v1:'+k;if(saved[k]==='')wx.removeStorageSync(key);else wx.setStorageSync(key,saved[k]);});}",[backup])
     call('automation_navigate', action='reLaunch', url='/pages/home/home')
     (ROOT/'artifacts').mkdir(exist_ok=True)
