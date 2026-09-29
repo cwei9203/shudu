@@ -36,5 +36,5 @@ for(let attempt=0;attempt<2000&&definitions.some(d=>lessons[d.id].length<5);atte
 }
 for(const definition of definitions) if(lessons[definition.id].length!==5) throw Error(`Insufficient ${definition.id} positions`);
 const courses=definitions.map(definition=>({...definition,lessons:lessons[definition.id]}));
-fs.writeFileSync(path.join(__dirname,'../miniprogram/data/locked-xwing.json'),JSON.stringify(courses));
+fs.writeFileSync(path.join(__dirname,'../miniprogram/data/locked-xwing.js'),'module.exports={courses:'+JSON.stringify(courses)+'};\n');
 console.log('Generated ten unique-solution positions with raw candidates; proof: [] (no prior deductions).');
