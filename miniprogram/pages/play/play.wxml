@@ -1,1 +1,27 @@
-<view class="page"><view class="title">自由玩</view><view class="subtitle">精选题目即将接入。</view></view>
+<view class="page play-page">
+ <view class="eyebrow">SUDOKU · 自由玩</view>
+ <view class="row heading"><view class="title">留一点时间给思考</view><button wx:if="{{game}}" class="small" bindtap="togglePicker">选题</button></view>
+ <view wx:if="{{error}}" class="notice" role="alert">{{error}}<button class="small retry" bindtap="persist" wx:if="{{game}}">重试保存</button></view>
+ <view wx:if="{{showPicker}}" class="card picker">
+  <view class="section-title">六道精选练习</view>
+  <view class="help">每题均有唯一解。无需计分，按自己的节奏完成。</view>
+  <view class="puzzle-grid"><button wx:for="{{puzzles}}" wx:key="id" class="puzzle-button" data-id="{{item.id}}" bindtap="choosePuzzle">{{item.title}}<text class="puzzle-hint">{{game.puzzleId === item.id ? '重新开始' : '开始练习'}}</text></button></view>
+  <view class="help">只保存最近一局；换题前会提醒。</view>
+ </view>
+ <block wx:if="{{game}}">
+  <view class="row game-info"><view><view class="section-title">{{title}}</view><text class="muted">{{game.solved ? '已完成' : '还剩 ' + remaining + ' 格'}}</text></view><view class="clock">{{clock}}<text class="clock-label">{{game.paused ? '计时已停止' : '专注用时'}}</text></view></view>
+  <view wx:if="{{game.solved}}" class="notice success"><view class="section-title">这一盘，完成了。</view><view>用时 {{clock}}，所有行、列、宫均符合规则。</view><button class="small replay" bindtap="togglePicker">再选一道</button></view>
+  <view class="board-wrap">
+   <sudoku-board wx:if="{{!game.paused || game.solved}}" board="{{game.board}}" candidates="{{game.notes}}" active="{{active}}" marks="{{marks}}" conflicts="{{game.conflicts}}" bind:celltap="selectCell" />
+   <view wx:else class="pause-panel"><view class="pause-symbol">Ⅱ</view><view class="section-title">休息一下</view><view class="muted">棋盘与笔记已保留，计时暂停。</view><button class="primary" bindtap="togglePause">继续游戏</button></view>
+  </view>
+  <view wx:if="{{!game.paused && !game.solved}}">
+   <view class="selection">{{selection}}</view>
+   <view wx:if="{{game.conflicts.length}}" class="conflict-tip" role="alert">! 标记处有重复数字，请检查行、列或宫。</view>
+   <view class="tools"><button class="small {{noteMode ? 'primary' : ''}}" bindtap="toggleNotes">{{noteMode ? '✓ 笔记开' : '笔记关'}}</button><button class="small" disabled="{{active < 0 || game.givens[active]}}" bindtap="erase">擦除</button><button class="small" disabled="{{!game.history.length}}" bindtap="undo">撤销</button><button class="small" bindtap="togglePause">暂停</button></view>
+   <view class="digits"><button wx:for="{{digits}}" wx:key="*this" data-digit="{{item}}" disabled="{{active < 0 || game.givens[active]}}" bindtap="inputDigit">{{item}}</button></view>
+   <view class="help footnote">{{noteMode ? '笔记仅记录你的想法。再次输入同一数字可取消笔记。' : '点选空格，再选数字；切到「笔记」可记录候选数。'}}</view>
+  </view>
+ </block>
+ <view class="help local-note">进度保存在当前设备；离开页面自动暂停。</view>
+</view>
