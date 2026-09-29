@@ -19,3 +19,19 @@ test('错误不揭示答案，题目不足时显示待独立验证且恢复后�
  assert.equal(courseStatus(JSON.parse(JSON.stringify(r)),ids),'needs-independent');
  r=updateProgress(r,{type:'submit',id:'unknown',ok:true},ids);assert.deepEqual(r.passed,[]);
 });
+test('旧进度兼容讲解与引导记录，只有已知题目能更新且不计入独立通过',()=>{
+ const ids=['a','b','c'],catalog=[{id:'intro',mode:'example'},{id:'guide',mode:'guided'}];
+ const old={revealed:[],passed:[],assisted:[]};
+ let record=updateProgress(old,{type:'study',id:'intro'},ids,catalog);
+ assert.deepEqual(record.studied,['intro']);
+ assert.equal(courseStatus(record,ids),'learning');
+ record=updateProgress(record,{type:'submit',id:'guide',ok:true},ids,catalog);
+ assert.deepEqual(record.guided,['guide']);
+ assert.deepEqual(record.passed,[]);
+ record=updateProgress(record,{type:'study',id:'intro'},ids,catalog);
+ assert.deepEqual(record.studied,['intro']);
+ for(const event of [{type:'study',id:'unknown'},{type:'submit',id:'unknown',ok:true},{type:'study',id:'guide'},{type:'submit',id:'intro',ok:true}]) {
+  assert.deepEqual(updateProgress(record,event,ids,catalog),record);
+ }
+ assert.deepEqual(old,{revealed:[],passed:[],assisted:[]});
+});
